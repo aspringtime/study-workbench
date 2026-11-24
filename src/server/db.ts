@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { randomUUID } from 'node:crypto'
-import { TOPIC_SEED } from '../shared/constants'
+import { DEFAULT_TEMPLATE_ID, findTemplate } from '../shared/templates'
 import type { Card, FocusSession, Note, Task, Topic } from '../shared/types'
 
 /**
@@ -196,11 +196,15 @@ export function rowToCard(r: Record<string, unknown>): Card {
   }
 }
 
-/* ---------- 首次启动写入预置知识地图 ---------- */
+/* ---------- 首次启动写入默认知识地图 ---------- */
 
 export function seedTopicsIfEmpty() {
   const row = db.prepare('SELECT COUNT(*) AS n FROM topics').get() as { n: number }
   if (row.n > 0) return
+
+  const tpl = findTemplate(DEFAULT_TEMPLATE_ID)
+  if (!tpl) return
+
   const insert = db.prepare(
     `INSERT INTO topics (id, track, name, parent_id, status, sort, note, practice, updated_at)
      VALUES (?, ?, ?, NULL, 'todo', ?, '', 0, ?)`,
@@ -208,9 +212,12 @@ export function seedTopicsIfEmpty() {
   const ts = now()
   db.exec('BEGIN')
   try {
-    TOPIC_SEED.forEach((t, i) => {
-      insert.run(uid(), t.track, t.name, i, ts)
-    })
+    let sort = 0
+    for (const track of tpl.tracks) {
+      for (const name of track.topics) {
+        insert.run(uid(), track.name, name, sort++, ts)
+      }
+    }
     db.exec('COMMIT')
   } catch (err) {
     db.exec('ROLLBACK')
