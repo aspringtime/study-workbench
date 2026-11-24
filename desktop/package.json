@@ -1,0 +1,20 @@
+{
+  "name": "study-workbench-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "学习工作台 · 桌面版",
+  "author": "aspringtime",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "build:server": "node build-server.mjs",
+    "start": "node build-server.mjs && electron .",
+    "dist": "node build-server.mjs && electron-builder --win",
+    "dist:dir": "node build-server.mjs && electron-builder --win --dir"
+  },
+  "devDependencies": {
+    "electron": "^45.5.0",
+    "electron-builder": "^26.0.0",
+    "esbuild": "^0.25.0"
+  }
+}

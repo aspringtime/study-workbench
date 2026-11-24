@@ -1,0 +1,34 @@
+appId: com.aspringtime.studyworkbench
+productName: 学习工作台
+copyright: Copyright © 2026 aspringtime
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - main.js
+  - package.json
+
+extraResources:
+  - from: ../dist/web
+    to: web
+  - from: build/server.cjs
+    to: server/server.cjs
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+  artifactName: StudyWorkbench-${version}-setup.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 学习工作台
+  deleteAppDataOnUninstall: false

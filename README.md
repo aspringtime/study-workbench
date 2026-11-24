@@ -99,6 +99,30 @@ fly deploy
 
 任何能跑 Docker 的地方都行，只要给一个持久卷挂到 `/data`，并把 `DATA_DIR` 指过去。没有持久化的话，至少定期用「统计 → 导出全部数据」存一份 JSON。
 
+## 桌面版（Windows）
+
+`desktop/` 里是 Electron 外壳，打出来是独立的 Windows 应用——不依赖浏览器，也不用自己起服务。数据和网页版是两套，各自存在自己的目录里。
+
+```bash
+cd desktop
+npm install
+npm run dist      # 产出 release/StudyWorkbench-<version>-setup.exe
+npm run dist:dir  # 只出免安装目录 release/win-unpacked/
+```
+
+改代码时不想每次打包：
+
+```bash
+pnpm build        # 先在仓库根目录出 dist/web
+cd desktop
+npm start
+```
+
+原理没什么特别的：`build-server.mjs` 用 esbuild 把 `src/server` 打成单个 `server.cjs`，主进程启动时在 `127.0.0.1` 上挑个空端口把它拉起来，窗口加载 `http://127.0.0.1:<port>/`。桌面版和网页版是同一套代码，只是分发方式不同。
+
+数据落在 `%APPDATA%\学习工作台\data\workbench.db`，卸载不会删。
+
+> 打包必须在 Windows 上跑，Electron 的二进制是按平台下载的。
 
 ## 接口
 

@@ -6,7 +6,25 @@ import { randomUUID } from 'node:crypto'
 import { TOPIC_SEED } from '../shared/constants'
 import type { Card, FocusSession, Note, Task, Topic } from '../shared/types'
 
-const here = dirname(fileURLToPath(import.meta.url))
+/**
+ * 模块所在目录。
+ * 用 tsx 直接跑 .ts 时走 import.meta.url；被 esbuild 打成 CJS（桌面版）时
+ * import.meta 是空的，得回退到 __dirname。两条路都失败就退回当前工作目录。
+ */
+function moduleDir(): string {
+  try {
+    if (typeof __dirname === 'string' && __dirname) return __dirname
+  } catch {
+    /* ESM 里没有 __dirname */
+  }
+  try {
+    return dirname(fileURLToPath(import.meta.url))
+  } catch {
+    return process.cwd()
+  }
+}
+
+const here = moduleDir()
 export const PROJECT_ROOT = resolve(here, '../..')
 export const DATA_DIR = process.env.DATA_DIR ? resolve(process.env.DATA_DIR) : join(PROJECT_ROOT, 'data')
 
