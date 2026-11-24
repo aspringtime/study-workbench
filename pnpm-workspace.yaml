@@ -1,0 +1,8 @@
+# pnpm 11 的设置放在这里（package.json 里的 pnpm 字段已经不读了）。
+#
+# esbuild 的 postinstall 只是校验一下二进制，真正的 executable 已经随
+# @esbuild/<platform> 包发下来了（vite 也验证过能用）。但 pnpm 11 默认
+# 不允许任何依赖跑 build script，会以 IGNORED_BUILDS 报错退出，所以这里
+# 显式放行。等价于手动跑一次 `pnpm approve-builds`。
+allowBuilds:
+  esbuild: true
