@@ -6,6 +6,7 @@ import { useToday } from '../lib/hooks'
 import { useTimer } from '../lib/timer'
 import { toast } from '../lib/ui'
 import { TimerCard } from '../components/TimerCard'
+import { WordCard } from '../components/WordCard'
 import { TaskRow } from '../components/TaskRow'
 import { IconFlame, IconLayers, IconPlus } from '../components/icons'
 
@@ -147,6 +148,8 @@ export default function Today() {
         </div>
 
         <div className="col" style={{ gap: 16 }}>
+          <WordCard />
+
           <div className="card review-cta">
             <div className="row" style={{ marginBottom: 10 }}>
               <IconLayers size={17} style={{ color: 'var(--accent-2)' }} />
