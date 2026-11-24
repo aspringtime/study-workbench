@@ -32,7 +32,13 @@ const app = Fastify({
 
 await app.register(cors, { origin: true })
 
-app.get('/api/health', async () => ({ ok: true, time: new Date().toISOString() }))
+app.get('/api/health', async () => ({
+  ok: true,
+  time: new Date().toISOString(),
+  // 排查线上问题用：容器里认的时区，以及这次部署的 commit
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  commit: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? process.env.GIT_COMMIT?.slice(0, 7) ?? null,
+}))
 
 await app.register(taskRoutes)
 await app.register(focusRoutes)
