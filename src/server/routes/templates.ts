@@ -22,6 +22,7 @@ export const templateRoutes: FastifyPluginAsync = async (app) => {
         name: tr.name,
         total: tr.topics.length,
         existing: counts.get(tr.name) ?? 0,
+        topics: tr.topics,
       }))
       return {
         id: t.id,

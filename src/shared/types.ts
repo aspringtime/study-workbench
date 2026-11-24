@@ -141,6 +141,8 @@ export interface TemplateTrackInfo {
   total: number
   /** 数据库里该方向已有多少个 */
   existing: number
+  /** 具体条目，给前端做预览 */
+  topics: string[]
 }
 
 export interface TemplateInfo {

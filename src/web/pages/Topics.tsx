@@ -29,6 +29,7 @@ export default function Topics() {
   const [editing, setEditing] = useState<Topic | null>(null)
   const [creatingTrack, setCreatingTrack] = useState<string | null>(null)
   const [tplOpen, setTplOpen] = useState(false)
+  const [expanded, setExpanded] = useState<string | null>(null)
   const [importing, setImporting] = useState<string | null>(null)
   const [form, setForm] = useState({ name: '', practice: 0, note: '' })
 
@@ -287,27 +288,49 @@ export default function Topics() {
           导入一份大纲，知识点会按方向写进地图。已经存在的会自动跳过，不会重复。
         </div>
         <div className="col" style={{ gap: 10 }}>
-          {(templates ?? []).map((t) => (
-            <div key={t.id} style={{ border: '1px solid var(--border)', borderRadius: 11, padding: 14 }}>
-              <div className="row" style={{ gap: 10 }}>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>{t.name}</div>
-                  <div className="tiny muted">{t.summary}</div>
+          {(templates ?? []).map((t) => {
+            const todo = t.total - Math.min(t.existing, t.total)
+            const open = expanded === t.id
+            return (
+              <div key={t.id} style={{ border: '1px solid var(--border)', borderRadius: 11, padding: 14 }}>
+                <div className="row" style={{ gap: 10 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{t.name}</div>
+                    <div className="tiny muted">
+                      {t.summary} · {t.total} 项{todo > 0 ? `，还能补 ${todo} 项` : '，已全部导入'}
+                    </div>
+                  </div>
+                  <span className="spacer" />
+                  <button className="btn ghost sm" onClick={() => setExpanded(open ? null : t.id)}>
+                    {open ? '收起' : '看看'}
+                  </button>
+                  <button
+                    className="btn sm primary"
+                    disabled={importing !== null || todo === 0}
+                    onClick={() => void importTemplate(t.id)}
+                  >
+                    {importing === t.id ? '导入中…' : todo === 0 ? '已全有' : t.existing > 0 ? '补全' : '导入'}
+                  </button>
                 </div>
-                <span className="spacer" />
-                <button
-                  className="btn sm primary"
-                  disabled={importing !== null}
-                  onClick={() => void importTemplate(t.id)}
-                >
-                  {importing === t.id ? '导入中…' : t.existing > 0 ? '补全' : '导入'}
-                </button>
+
+                {open && (
+                  <div style={{ marginTop: 12, borderTop: '1px dashed var(--border)', paddingTop: 12 }}>
+                    {t.tracks.map((tr) => (
+                      <div key={tr.name} style={{ marginBottom: 9 }}>
+                        <div className="tiny" style={{ color: 'var(--text-dim)', marginBottom: 2 }}>
+                          {tr.name}
+                          <span className="muted mono"> {tr.total}</span>
+                        </div>
+                        <div className="tiny muted" style={{ lineHeight: 1.65 }}>
+                          {tr.topics.join(' · ')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="tiny muted mono" style={{ marginTop: 9 }}>
-                {t.tracks.map((tr) => `${tr.name} ${Math.min(tr.existing, tr.total)}/${tr.total}`).join('  ·  ')}
-              </div>
-            </div>
-          ))}
+            )
+          })}
           {!templates?.length && <div className="empty">还没有模板</div>}
         </div>
       </Modal>
