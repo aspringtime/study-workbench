@@ -4,6 +4,7 @@ import type {
   FocusSession,
   Note,
   ReviewRating,
+  Resource,
   StatsSummary,
   Task,
   TemplateInfo,
@@ -185,6 +186,21 @@ export const api = {
       return request<{ word: string; meaning: string; level: string }>(
         `/api/words/random${qs({ level, exclude })}`,
       )
+    },
+  },
+
+  resources: {
+    list() {
+      return request<Resource[]>('/api/resources')
+    },
+    create(body: { title: string; url: string; category?: string; note?: string }) {
+      return request<Resource>('/api/resources', { method: 'POST', body: JSON.stringify(body) })
+    },
+    update(id: string, body: Partial<Pick<Resource, 'title' | 'url' | 'category' | 'note'>>) {
+      return request<Resource>(`/api/resources/${id}`, { method: 'PATCH', body: JSON.stringify(body) })
+    },
+    remove(id: string) {
+      return request<void>(`/api/resources/${id}`, { method: 'DELETE' })
     },
   },
 

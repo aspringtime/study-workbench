@@ -124,3 +124,17 @@ export const IconFlame = ({ size, ...p }: P) => (
     <path d="M12 22c4 0 7-2.9 7-6.7 0-4.6-4-6.6-4-10.3 0-1.2-.6-2-1.5-2.5.3 3-2 4.5-3.6 6.3C8.2 10.6 5 12.3 5 15.3 5 19.1 8 22 12 22z" />
   </svg>
 )
+
+export const IconBook = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}>
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  </svg>
+)
+
+export const IconExternal = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}>
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <path d="M15 3h6v6M10 14L21 3" />
+  </svg>
+)

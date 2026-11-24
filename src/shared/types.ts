@@ -133,6 +133,18 @@ export interface ApiError {
   message: string
 }
 
+/* ---------- 资料 ---------- */
+
+export interface Resource {
+  id: string
+  title: string
+  url: string
+  category: string
+  note: string
+  sort: number
+  createdAt: string
+}
+
 /* ---------- 知识地图模板 ---------- */
 
 export interface TemplateTrackInfo {

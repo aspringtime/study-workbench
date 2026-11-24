@@ -5,7 +5,7 @@ import fastifyStatic from '@fastify/static'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { ZodError } from 'zod'
-import { PROJECT_ROOT, seedTopicsIfEmpty } from './db'
+import { PROJECT_ROOT, seedResourcesIfEmpty, seedTopicsIfEmpty } from './db'
 import { AppError } from './errors'
 import { taskRoutes } from './routes/tasks'
 import { focusRoutes } from './routes/focus'
@@ -16,6 +16,7 @@ import { statsRoutes } from './routes/stats'
 import { systemRoutes } from './routes/system'
 import { templateRoutes } from './routes/templates'
 import { wordRoutes } from './routes/words'
+import { resourceRoutes } from './routes/resources'
 
 export interface StartServerOptions {
   port?: number
@@ -75,6 +76,7 @@ export async function startServer(opts: StartServerOptions = {}): Promise<Runnin
   await app.register(systemRoutes)
   await app.register(templateRoutes)
   await app.register(wordRoutes)
+  await app.register(resourceRoutes)
 
   const hasBuild = existsSync(join(webDist, 'index.html'))
 
@@ -122,6 +124,7 @@ export async function startServer(opts: StartServerOptions = {}): Promise<Runnin
   })
 
   seedTopicsIfEmpty()
+  seedResourcesIfEmpty()
 
   await app.listen({ port, host })
 

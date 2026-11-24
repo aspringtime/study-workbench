@@ -4,6 +4,7 @@ import { useTimer } from '../lib/timer'
 import { cn, useTheme } from '../lib/ui'
 import { formatClock } from '@shared/dates'
 import {
+  IconBook,
   IconChart,
   IconCheckSquare,
   IconFileText,
@@ -57,6 +58,7 @@ export function Layout() {
     { to: '/tasks', label: '任务', icon: IconCheckSquare },
     { to: '/topics', label: '知识地图', icon: IconMap },
     { to: '/notes', label: '笔记', icon: IconFileText },
+    { to: '/resources', label: '资料', icon: IconBook },
     { to: '/review', label: '复习', icon: IconLayers, badge: due || undefined, hot: due > 0 },
     { to: '/stats', label: '统计', icon: IconChart },
   ]

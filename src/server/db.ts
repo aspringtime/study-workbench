@@ -110,6 +110,16 @@ db.exec(`
     next_interval REAL NOT NULL
   );
   CREATE INDEX IF NOT EXISTS idx_reviews_date ON reviews(date);
+
+  CREATE TABLE IF NOT EXISTS resources (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    url TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT '综合',
+    note TEXT NOT NULL DEFAULT '',
+    sort INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  );
 `)
 
 export const now = () => new Date().toISOString()
@@ -196,7 +206,70 @@ export function rowToCard(r: Record<string, unknown>): Card {
   }
 }
 
-/* ---------- 首次启动写入默认知识地图 ---------- */
+/* ---------- 首次启动写入几条常用资料 ---------- */
+
+const RESOURCE_SEED: { title: string; url: string; category: string; note: string }[] = [
+  {
+    title: 'Hello 算法',
+    url: 'https://www.hello-algo.com/',
+    category: '算法',
+    note: '图文并茂的数据结构与算法入门，带动画演示',
+  },
+  {
+    title: 'OI Wiki',
+    url: 'https://oi-wiki.org/',
+    category: '算法',
+    note: '竞赛向的知识点索引，查模板和证明都方便',
+  },
+  {
+    title: '力扣 LeetCode',
+    url: 'https://leetcode.cn/',
+    category: '算法',
+    note: '按知识点筛题刷',
+  },
+  {
+    title: 'cppreference',
+    url: 'https://en.cppreference.com/w/',
+    category: '编程语言',
+    note: 'C / C++ 标准库最权威的参考',
+  },
+  {
+    title: 'Python 官方教程',
+    url: 'https://docs.python.org/zh-cn/3/tutorial/',
+    category: '编程语言',
+    note: '中文版，从零到能写脚本',
+  },
+  {
+    title: '四六级考试官网',
+    url: 'https://cet.neea.edu.cn/',
+    category: '英语',
+    note: '报名、准考证、成绩都在这儿',
+  },
+]
+
+export function seedResourcesIfEmpty() {
+  const row = db.prepare('SELECT COUNT(*) AS n FROM resources').get() as { n: number }
+  if (row.n > 0) return
+
+  const insert = db.prepare(
+    `INSERT INTO resources (id, title, url, category, note, sort, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  )
+  const ts = now()
+  db.exec('BEGIN')
+  try {
+    const byCat = new Map<string, number>()
+    for (const r of RESOURCE_SEED) {
+      const n = (byCat.get(r.category) ?? 0) + 1
+      byCat.set(r.category, n)
+      insert.run(uid(), r.title, r.url, r.category, r.note, n, ts)
+    }
+    db.exec('COMMIT')
+  } catch (err) {
+    db.exec('ROLLBACK')
+    throw err
+  }
+}
 
 export function seedTopicsIfEmpty() {
   const row = db.prepare('SELECT COUNT(*) AS n FROM topics').get() as { n: number }

@@ -7,6 +7,7 @@ import Today from './pages/Today'
 import Tasks from './pages/Tasks'
 import Topics from './pages/Topics'
 import Notes from './pages/Notes'
+import Resources from './pages/Resources'
 import Review from './pages/Review'
 import Stats from './pages/Stats'
 
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/topics" element={<Topics />} />
             <Route path="/notes" element={<Notes />} />
+            <Route path="/resources" element={<Resources />} />
             <Route path="/review" element={<Review />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="*" element={<NotFound />} />
