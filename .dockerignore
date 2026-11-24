@@ -1,0 +1,13 @@
+node_modules
+dist
+data
+data-demo
+docs
+shots
+.git
+.github
+.env
+.env.local
+*.log
+README.md
+Dockerfile

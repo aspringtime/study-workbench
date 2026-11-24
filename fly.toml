@@ -1,0 +1,31 @@
+# Fly.io 配置：有持久卷，适合长期跑
+#
+# 第一次用先 `fly launch --no-deploy`（它会问你 app 名字和区域，可能改写本文件），
+# 然后 `fly volumes create wb_data --size 3 --region sin`，
+# 最后 `fly deploy`。
+app = "study-workbench"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  HOST = "0.0.0.0"
+  PORT = "8787"
+  DATA_DIR = "/data"
+
+[[mounts]]
+  source = "wb_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8787
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

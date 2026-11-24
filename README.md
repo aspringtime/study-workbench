@@ -65,21 +65,40 @@ pnpm seed --force  # 清空后重灌
 
 ## 部署
 
-**Docker（推荐）**
+### Docker
 
 ```bash
 docker build -t study-workbench .
 docker run -d -p 8787:8787 -v "$(pwd)/data:/app/data" --name wb study-workbench
 ```
 
-**Render / Railway / Fly.io 这类平台**
+`/data` 是数据库挂载点，删容器不删卷，数据就还在。
 
-- Build Command：`pnpm install && pnpm build`
-- Start Command：`node ./node_modules/tsx/dist/cli.mjs src/server/index.ts`
-- 环境变量：`HOST=0.0.0.0`、`PORT=8787`、`DATA_DIR=/data`
-- 挂一个持久磁盘到 `/data`
+### Render（免费，最省事）
 
-免费实例的磁盘通常不持久，重启会丢数据。要么挂 volume，要么定期用「统计 → 导出全部数据」存一份 JSON。
+仓库里有 [`render.yaml`](render.yaml)，点下面这个链接，登录后它会读配置自动建服务：
+
+**https://render.com/deploy?repo=https://github.com/aspringtime/study-workbench**
+
+免费层的两个代价：
+
+- 15 分钟没访问会休眠，下次打开要等 30 秒左右冷启动。
+- **磁盘不持久**。重新部署、重启实例，`/data` 会被清空，任务和卡片就没了。所以线上那份适合拿来给人看效果，真数据还是放本地。要用得久，换成 Fly.io 的卷，或者把 Render 升级到带 Disk 的付费计划（`$7/月`）。
+
+### Fly.io（有持久卷，长期用选这个）
+
+```bash
+fly launch --no-deploy              # 会问 app 名字和区域
+fly volumes create wb_data --size 3 --region sin
+fly deploy
+```
+
+[`fly.toml`](fly.toml) 已经配好了 `internal_port`、卷挂载和 `DATA_DIR`，3GB 卷在免费额度里。
+
+### 通用平台
+
+任何能跑 Docker 的地方都行，只要给一个持久卷挂到 `/data`，并把 `DATA_DIR` 指过去。没有持久化的话，至少定期用「统计 → 导出全部数据」存一份 JSON。
+
 
 ## 接口
 
