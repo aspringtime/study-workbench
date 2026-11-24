@@ -10,6 +10,8 @@ export const useToday = () =>
 
 export const useTopics = () => useSWR('topics', () => api.topics.list())
 
+export const useTemplates = () => useSWR('templates', () => api.templates.list())
+
 export const useNotes = (kind: string, q: string) =>
   useSWR(['notes', kind, q], () => api.notes.list({ kind, q }), { keepPreviousData: true })
 

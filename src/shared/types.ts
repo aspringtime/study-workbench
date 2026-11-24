@@ -132,3 +132,25 @@ export interface ApiError {
   error: string
   message: string
 }
+
+/* ---------- 知识地图模板 ---------- */
+
+export interface TemplateTrackInfo {
+  name: string
+  /** 模板里该方向有多少个知识点 */
+  total: number
+  /** 数据库里该方向已有多少个 */
+  existing: number
+}
+
+export interface TemplateInfo {
+  id: string
+  name: string
+  summary: string
+  order: number
+  /** 模板总条目数 */
+  total: number
+  /** 已存在于数据库的条目数 */
+  existing: number
+  tracks: TemplateTrackInfo[]
+}

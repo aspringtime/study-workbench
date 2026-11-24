@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react'
 import type { Topic, TopicStatus } from '@shared/types'
 import { TOPIC_TRACKS } from '@shared/constants'
 import { api } from '../lib/api'
-import { useTopics } from '../lib/hooks'
+import { useTemplates, useTopics } from '../lib/hooks'
 import { toast } from '../lib/ui'
 import { Modal } from '../components/Modal'
-import { IconCheck, IconPlus } from '../components/icons'
+import { IconCheck, IconLayers, IconPlus } from '../components/icons'
 
 const NEXT_STATUS: Record<TopicStatus, TopicStatus> = {
   todo: 'learning',
@@ -25,9 +25,29 @@ function weight(s: TopicStatus): number {
 
 export default function Topics() {
   const { data: topics, mutate, isLoading } = useTopics()
+  const { data: templates, mutate: mutateTemplates } = useTemplates()
   const [editing, setEditing] = useState<Topic | null>(null)
   const [creatingTrack, setCreatingTrack] = useState<string | null>(null)
+  const [tplOpen, setTplOpen] = useState(false)
+  const [importing, setImporting] = useState<string | null>(null)
   const [form, setForm] = useState({ name: '', practice: 0, note: '' })
+
+  async function importTemplate(id: string) {
+    setImporting(id)
+    try {
+      const r = await api.templates.import(id)
+      await Promise.all([mutate(), mutateTemplates()])
+      toast(
+        r.added > 0
+          ? `导入了 ${r.added} 个知识点${r.skipped ? `，跳过 ${r.skipped} 个已存在的` : ''}`
+          : '这些知识点已经全在了',
+      )
+    } catch (e) {
+      toast(e instanceof Error ? e.message : '导入失败')
+    } finally {
+      setImporting(null)
+    }
+  }
 
   const grouped = useMemo(() => {
     const map = new Map<string, Topic[]>()
@@ -115,13 +135,18 @@ export default function Topics() {
             共 {all.length} 个知识点 · 已掌握 {mastered} · 在学 {learning}
           </div>
         </div>
-        <div className="row" style={{ gap: 10 }}>
-          <span className="tiny muted mono">{Math.round(overall * 100)}%</span>
-          <div style={{ width: 120 }}>
-            <div className="progress">
-              <span style={{ width: `${overall * 100}%` }} />
+        <div className="row" style={{ gap: 12 }}>
+          <div className="row" style={{ gap: 8 }}>
+            <div style={{ width: 110 }}>
+              <div className="progress">
+                <span style={{ width: `${overall * 100}%` }} />
+              </div>
             </div>
+            <span className="tiny muted mono">{Math.round(overall * 100)}%</span>
           </div>
+          <button className="btn sm" onClick={() => setTplOpen(true)}>
+            <IconLayers size={13} /> 模板库
+          </button>
         </div>
       </div>
 
@@ -254,6 +279,36 @@ export default function Topics() {
             placeholder="比如：强连通分量 · Kosaraju"
             autoFocus
           />
+        </div>
+      </Modal>
+
+      <Modal open={tplOpen} title="知识地图模板" onClose={() => setTplOpen(false)}>
+        <div className="tiny muted" style={{ marginBottom: 14, lineHeight: 1.6 }}>
+          导入一份大纲，知识点会按方向写进地图。已经存在的会自动跳过，不会重复。
+        </div>
+        <div className="col" style={{ gap: 10 }}>
+          {(templates ?? []).map((t) => (
+            <div key={t.id} style={{ border: '1px solid var(--border)', borderRadius: 11, padding: 14 }}>
+              <div className="row" style={{ gap: 10 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14 }}>{t.name}</div>
+                  <div className="tiny muted">{t.summary}</div>
+                </div>
+                <span className="spacer" />
+                <button
+                  className="btn sm primary"
+                  disabled={importing !== null}
+                  onClick={() => void importTemplate(t.id)}
+                >
+                  {importing === t.id ? '导入中…' : t.existing > 0 ? '补全' : '导入'}
+                </button>
+              </div>
+              <div className="tiny muted mono" style={{ marginTop: 9 }}>
+                {t.tracks.map((tr) => `${tr.name} ${Math.min(tr.existing, tr.total)}/${tr.total}`).join('  ·  ')}
+              </div>
+            </div>
+          ))}
+          {!templates?.length && <div className="empty">还没有模板</div>}
         </div>
       </Modal>
     </>

@@ -6,6 +6,7 @@ import type {
   ReviewRating,
   StatsSummary,
   Task,
+  TemplateInfo,
   TodayPayload,
   Topic,
 } from '@shared/types'
@@ -164,6 +165,18 @@ export const api = {
     },
     activity(from: string, to: string) {
       return request<DayActivity[]>(`/api/stats/activity${qs({ from, to })}`)
+    },
+  },
+
+  templates: {
+    list() {
+      return request<TemplateInfo[]>('/api/templates')
+    },
+    import(id: string) {
+      return request<{ added: number; skipped: number; template: string }>(`/api/templates/${id}/import`, {
+        method: 'POST',
+        body: '{}',
+      })
     },
   },
 

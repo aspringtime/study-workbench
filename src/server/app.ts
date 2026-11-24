@@ -14,6 +14,7 @@ import { noteRoutes } from './routes/notes'
 import { cardRoutes } from './routes/cards'
 import { statsRoutes } from './routes/stats'
 import { systemRoutes } from './routes/system'
+import { templateRoutes } from './routes/templates'
 
 export interface StartServerOptions {
   port?: number
@@ -71,6 +72,7 @@ export async function startServer(opts: StartServerOptions = {}): Promise<Runnin
   await app.register(cardRoutes)
   await app.register(statsRoutes)
   await app.register(systemRoutes)
+  await app.register(templateRoutes)
 
   const hasBuild = existsSync(join(webDist, 'index.html'))
 

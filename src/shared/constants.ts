@@ -5,7 +5,7 @@ export interface TopicSeed {
   name: string
 }
 
-export const TOPIC_TRACKS = ['图论', '数据结构', '动态规划', '算法技巧'] as const
+export const TOPIC_TRACKS = ['编程语言', '数据结构', '算法分析', '图论', '动态规划', '算法技巧'] as const
 
 export const TOPIC_SEED: TopicSeed[] = [
   // 图论
