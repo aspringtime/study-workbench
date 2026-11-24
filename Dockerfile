@@ -18,10 +18,14 @@ RUN pnpm build
 FROM node:24-alpine AS runtime
 WORKDIR /app
 
+# 容器默认跑在 UTC，不设这个「今天」会从北京时间早上 8 点才算起
+RUN apk add --no-cache tzdata
+
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=8787 \
-    DATA_DIR=/data
+    DATA_DIR=/data \
+    TZ=Asia/Shanghai
 
 # 直接把装好的依赖搬过来，运行镜像里不用再装一遍
 COPY --from=build /app/package.json ./
