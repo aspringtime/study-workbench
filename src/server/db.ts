@@ -210,6 +210,12 @@ export function rowToCard(r: Record<string, unknown>): Card {
 
 const RESOURCE_SEED: { title: string; url: string; category: string; note: string }[] = [
   {
+    title: '菜鸟教程',
+    url: 'https://www.runoob.com/',
+    category: '综合',
+    note: '各种语言和工具的入门教程，查语法最快',
+  },
+  {
     title: 'Hello 算法',
     url: 'https://www.hello-algo.com/',
     category: '算法',
