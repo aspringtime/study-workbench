@@ -1,69 +1,75 @@
-# 学习工作台 · Study Workbench
+# Study Workbench
 
-给自己做的一个小型学习系统。不追求功能多，只解决四件事：
+**English** | [简体中文](README.zh-CN.md)
 
-**今天该干什么** → 番茄钟 + 任务清单
-**学到哪了** → 算法知识地图
-**该复习什么** → 间隔重复卡片
-**最近有没有在动** → 学习热力图
+[![CI](https://github.com/aspringtime/study-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/aspringtime/study-workbench/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/aspringtime/study-workbench)](https://github.com/aspringtime/study-workbench/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-![今日](docs/today.png)
+A small learning system I built for myself. It doesn't try to do everything — just four things:
 
-## 功能
+**What should I do today?** → Pomodoro timer and a task list
+**Where am I?** → a map of algorithms and concepts
+**What needs reviewing?** → spaced-repetition cards
+**Have I been showing up?** → a study heatmap
 
-- **今日**：番茄钟（25 / 5 / 15，可绑定到具体任务）、今日任务、今日数字、专注时间线
-- **任务**：按「过期 / 今天 / 明天 / 以后 / 收件箱 / 已完成」分组
-- **知识地图**：预置一套图论、数据结构、DP、算法技巧大纲；点状态点循环切换「未开始 → 在学 → 已掌握」；支持备注和练题数
-- **笔记**：Markdown 编辑与预览，编辑即自动保存，分「模板 / 踩坑 / 想法」
-- **复习**：简化 SM-2 间隔重复，空格翻面、数字键 1-4 评分，带卡片库管理
-- **统计**：全年热力图（一格一天）、最近 30 天专注柱状图、当前/最长连续天数
+![Today](docs/today.png)
 
-![知识地图](docs/topics.png)
-![统计](docs/stats.png)
+## Features
 
-## 技术栈
+- **Today** — Pomodoro timer (25 / 5 / 15, bindable to a task), today's tasks, today's numbers, a timeline of focus sessions
+- **Tasks** — grouped into overdue / today / tomorrow / later / inbox / done
+- **Knowledge map** — a built-in outline of graph theory, data structures, DP and general techniques; click the status dot to cycle through todo → learning → mastered; each topic carries notes and a problem count
+- **Notes** — Markdown editing with preview, auto-saved as you type, tagged as template / pitfall / idea
+- **Review** — simplified SM-2 spaced repetition; space to flip, 1–4 to rate; card library included
+- **Stats** — a full-year heatmap (one cell per day), last 30 days of focus time, current and longest streaks
 
-| 层 | 用的东西 |
+![Knowledge map](docs/topics.png)
+![Stats](docs/stats.png)
+
+## Stack
+
+| Layer | What it uses |
 | --- | --- |
-| 前端 | React 19 + TypeScript + Vite + SWR |
-| 后端 | Fastify 5 + `node:sqlite`（Node 内置，零原生依赖） |
-| 样式 | 手写 CSS，深色 / 浅色两套变量 |
-| 数据 | 单文件 SQLite，备份就是拷 `data/workbench.db` |
+| Frontend | React 19 + TypeScript + Vite + SWR |
+| Backend | Fastify 5 + `node:sqlite` (built into Node, no native deps) |
+| Styling | Hand-written CSS, dark and light themes via CSS variables |
+| Storage | A single SQLite file — backup is `cp data/workbench.db` |
 
-选 `node:sqlite` 是为了省掉 `better-sqlite3` 的编译和平台差异：只要 Node ≥ 22.13 就能跑（会有一条 ExperimentalWarning，不影响），Docker 镜像也干净。
+`node:sqlite` is why there's no `better-sqlite3` here: nothing to compile, no per-platform binaries. Anything Node ≥ 22.13 works (you'll get an ExperimentalWarning, harmless), and the Docker image stays clean.
 
-## 跑起来
+## Getting started
 
-需要 Node **22.13+**，推荐 24。Windows、WSL、macOS 都行。
+Node **22.13+**, 24 recommended. Works on Windows, WSL and macOS.
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-前端在 http://localhost:5173 ，接口在 8787（Vite 已经代理 `/api`）。
+Frontend on http://localhost:5173, API on 8787 (Vite proxies `/api`).
 
-生产模式：
+Production mode:
 
 ```bash
 pnpm build
 pnpm start
 ```
 
-打开 http://127.0.0.1:8787 ，前端静态文件由同一个 Node 进程提供，不用另起服务。
+Open http://127.0.0.1:8787 — the same Node process serves the built frontend, no second server needed.
 
-第一次启动会自动建表，并写入一套图论知识点。
+On first run it creates the schema and seeds a graph-theory outline.
 
-## 想先看看效果
+## Want to see it with data
 
 ```bash
-pnpm seed          # 灌一批示例任务 / 笔记 / 卡片 / 专注记录
-pnpm seed --force  # 清空后重灌
+pnpm seed          # sample tasks / notes / cards / focus sessions
+pnpm seed --force  # wipe and reseed
 ```
 
-不想要了就删掉 `data/` 目录，重启即干净。
+Delete `data/` to start from a clean slate.
 
-## 部署
+## Deploy
 
 ### Docker
 
@@ -72,86 +78,86 @@ docker build -t study-workbench .
 docker run -d -p 8787:8787 -v "$(pwd)/data:/app/data" --name wb study-workbench
 ```
 
-`/data` 是数据库挂载点，删容器不删卷，数据就还在。
+`/data` is the mount point — remove the container, keep the volume, keep the data.
 
-### Render（免费，最省事）
+### Render (free, least effort)
 
-仓库里有 [`render.yaml`](render.yaml)，点下面这个链接，登录后它会读配置自动建服务：
+The repo ships a [`render.yaml`](render.yaml). Follow this link and it reads the config after you log in:
 
 **https://render.com/deploy?repo=https://github.com/aspringtime/study-workbench**
 
-免费层的两个代价：
+Two costs on the free tier:
 
-- 15 分钟没访问会休眠，下次打开要等 30 秒左右冷启动。
-- **磁盘不持久**。重新部署、重启实例，`/data` 会被清空，任务和卡片就没了。所以线上那份适合拿来给人看效果，真数据还是放本地。要用得久，换成 Fly.io 的卷，或者把 Render 升级到带 Disk 的付费计划（`$7/月`）。
+- It sleeps after 15 minutes of inactivity; the next request waits ~30s for a cold start.
+- **The disk is ephemeral.** Redeploying or restarting wipes `/data`, taking your tasks and cards with it. So the hosted copy is for showing people what it looks like — keep real data local. If you need it to last, use a Fly volume or upgrade to Render's paid disk plan ($7/mo).
 
-### Fly.io（有持久卷，长期用选这个）
+### Fly.io (persistent volume, the long-term option)
 
 ```bash
-fly launch --no-deploy              # 会问 app 名字和区域
+fly launch --no-deploy              # asks for an app name and region
 fly volumes create wb_data --size 3 --region sin
 fly deploy
 ```
 
-[`fly.toml`](fly.toml) 已经配好了 `internal_port`、卷挂载和 `DATA_DIR`，3GB 卷在免费额度里。
+[`fly.toml`](fly.toml) already sets `internal_port`, the volume mount and `DATA_DIR`; a 3GB volume fits in the free allowance.
 
-### 通用平台
+### Anywhere else
 
-任何能跑 Docker 的地方都行，只要给一个持久卷挂到 `/data`，并把 `DATA_DIR` 指过去。没有持久化的话，至少定期用「统计 → 导出全部数据」存一份 JSON。
+Any Docker host works — give it a persistent volume at `/data` and point `DATA_DIR` there. Without persistence, at least export a JSON snapshot from Stats → Export now and then.
 
-## 桌面版（Windows）
+## Desktop (Windows)
 
-`desktop/` 里是 Electron 外壳，打出来是独立的 Windows 应用——不依赖浏览器，也不用自己起服务。数据和网页版是两套，各自存在自己的目录里。
+`desktop/` is an Electron shell. It builds into a standalone Windows app — no browser, no manually started server. It keeps its own database, separate from the web version.
 
 ```bash
 cd desktop
 npm install
-npm run dist      # 产出 release/StudyWorkbench-<version>-setup.exe
-npm run dist:dir  # 只出免安装目录 release/win-unpacked/
+npm run dist      # -> release/StudyWorkbench-<version>-setup.exe
+npm run dist:dir  # unpacked only, release/win-unpacked/
 ```
 
-改代码时不想每次打包：
+To iterate without packaging every time:
 
 ```bash
-pnpm build        # 先在仓库根目录出 dist/web
+pnpm build        # from the repo root, produces dist/web
 cd desktop
 npm start
 ```
 
-原理没什么特别的：`build-server.mjs` 用 esbuild 把 `src/server` 打成单个 `server.cjs`，主进程启动时在 `127.0.0.1` 上挑个空端口把它拉起来，窗口加载 `http://127.0.0.1:<port>/`。桌面版和网页版是同一套代码，只是分发方式不同。
+How it works: `build-server.mjs` bundles `src/server` into a single `server.cjs` with esbuild; on launch the main process picks a free port on `127.0.0.1`, starts it, and the window loads `http://127.0.0.1:<port>/`. Same code as the web version, different delivery.
 
-数据落在 `%APPDATA%\学习工作台\data\workbench.db`，卸载不会删。
+Data lives in `%APPDATA%\学习工作台\data\workbench.db` and survives uninstall.
 
-> 打包必须在 Windows 上跑，Electron 的二进制是按平台下载的。
+> Packaging has to run on Windows — Electron downloads its binaries per platform.
 
-## 接口
+## API
 
-都在 `/api` 下，返回 JSON。常用的几个：
+Everything lives under `/api`, JSON in and out. The ones worth knowing:
 
-| 方法 | 路径 | 说明 |
+| Method | Path | Purpose |
 | --- | --- | --- |
-| GET | `/api/today?date=YYYY-MM-DD` | 首屏要的全量数据 |
-| GET | `/api/stats/activity?from=&to=` | 逐日活跃度，热力图用 |
-| GET / POST | `/api/export` · `/api/import` | 全量备份与恢复 |
-| POST | `/api/cards/:id/review` | 提交一次复习评分 |
+| GET | `/api/today?date=YYYY-MM-DD` | everything the home screen needs |
+| GET | `/api/stats/activity?from=&to=` | per-day activity, feeds the heatmap |
+| GET / POST | `/api/export` · `/api/import` | full backup and restore |
+| POST | `/api/cards/:id/review` | submit one review rating |
 
-## 一些设计取舍
+## Design decisions
 
-- **没有登录**。这是给一个人用的东西，跑在本机或自己的服务器上。要公开访问，自己在前面加一层反代 + 认证。
-- **日期一律是本地 `YYYY-MM-DD` 字符串**，由前端传，服务端不做时区推断。这样跨时区、跨夏令时都不会错位。
-- **番茄钟记录的是完整的一段**：暂停再继续不会拆成两条，结束时按总时长落一条记录。
-- **间隔重复是简化的 SM-2**：忘了当天重来，勉强 ×1.2，记得 × 难度系数，简单 ×1.3 并且难度系数 +0.15。
+- **No authentication.** This is a single-person tool running on your machine or your own server. For public access, put it behind a reverse proxy with auth.
+- **Dates are local `YYYY-MM-DD` strings**, sent by the client. The server does no timezone inference, so nothing shifts across timezones or DST.
+- **A Pomodoro session is recorded as one block.** Pausing and resuming doesn't split it; the whole duration lands as a single record.
+- **Spaced repetition is a simplified SM-2**: forgot resets to today, hard ×1.2, good × ease, easy ×1.3 with ease +0.15.
 
-## 目录
+## Layout
 
 ```
 src/
-  shared/        前后端共用：类型、日期工具、SM-2、预置大纲
-  server/        Fastify 应用、路由、SQLite
-  web/           React 页面与组件
-data/            运行时生成的 SQLite（已 gitignore）
+  shared/        shared by both sides: types, date helpers, SM-2, seed outline
+  server/        Fastify app, routes, SQLite
+  web/           React pages and components
+data/            SQLite created at runtime (gitignored)
 ```
 
 ## License
 
-MIT，随便改。
+MIT — take it and change it.
