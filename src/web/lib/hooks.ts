@@ -15,7 +15,8 @@ export const useTemplates = () => useSWR('templates', () => api.templates.list()
 export const useNotes = (kind: string, q: string) =>
   useSWR(['notes', kind, q], () => api.notes.list({ kind, q }), { keepPreviousData: true })
 
-export const useDueCards = () => useSWR('cards-due', () => api.cards.list({ due: '1' }))
+export const useDueCards = () =>
+  useSWR(['cards-due', todayStr()], () => api.cards.list({ due: '1', date: todayStr() }))
 
 export const useAllCards = () => useSWR('cards-all', () => api.cards.list())
 

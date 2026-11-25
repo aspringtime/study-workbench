@@ -6,8 +6,44 @@ export function toDateStr(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
+/**
+ * 「今天」按哪个时区算。
+ * 不设就是跟随设备；设了就用 Intl 换算成那个时区的日历日。
+ * 前端把它存进 localStorage，切换时刷新页面重新拉数据。
+ */
+let tzOverride: string | null = null
+
+export function setTimeZoneOverride(tz: string | null): void {
+  tzOverride = tz && tz !== 'auto' ? tz : null
+}
+
+export function getTimeZoneOverride(): string | null {
+  return tzOverride
+}
+
+/** 当前生效的时区名，UI 显示用 */
+export function currentTimeZone(): string {
+  if (tzOverride) return tzOverride
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone
+  } catch {
+    return 'UTC'
+  }
+}
+
 export function todayStr(): string {
-  return toDateStr(new Date())
+  if (!tzOverride) return toDateStr(new Date())
+  try {
+    // en-CA 的输出正好是 YYYY-MM-DD
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: tzOverride,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date())
+  } catch {
+    return toDateStr(new Date())
+  }
 }
 
 export function parseDate(s: string): Date {
