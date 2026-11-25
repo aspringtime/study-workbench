@@ -7,13 +7,38 @@ type Row = [string, string, string, number]
 const ALL = words as unknown as Row[]
 const FREQ_LABEL = ['高频', '中频', '低频']
 
+/**
+ * 定种子洗牌。同一个 seed 每次结果都一样，
+ * 这样「乱序」翻页时不会重复也不会漏。
+ */
+function seededShuffle<T>(input: T[], seed: number): T[] {
+  const out = input.slice()
+  let s = (seed || 1) >>> 0
+  const rnd = () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0
+    return s / 4294967296
+  }
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1))
+    const tmp = out[i]
+    out[i] = out[j]
+    out[j] = tmp
+  }
+  return out
+}
+
 export const wordRoutes: FastifyPluginAsync = async (app) => {
-  /** 词库浏览：分页 + 级别 / 频档筛选 + 关键词搜索 */
+  /** 词库浏览：分页 + 级别 / 频档筛选 + 关键词搜索 + 乱序 */
   app.get('/api/words', async (req) => {
-    const { q = '', level = 'all', freq = 'all', page = '1', size = '60' } = req.query as Record<
-      string,
-      string
-    >
+    const {
+      q = '',
+      level = 'all',
+      freq = 'all',
+      page = '1',
+      size = '60',
+      order = 'default',
+      seed = '1',
+    } = req.query as Record<string, string>
     const pageNum = Math.max(1, Number(page) || 1)
     const pageSize = Math.min(300, Math.max(10, Number(size) || 60))
 
@@ -30,6 +55,10 @@ export const wordRoutes: FastifyPluginAsync = async (app) => {
     if (keyword) {
       const lower = keyword.toLowerCase()
       pool = pool.filter((r) => r[0].toLowerCase().includes(lower) || r[1].includes(keyword))
+    }
+
+    if (order === 'random') {
+      pool = seededShuffle(pool, Number(seed) || 1)
     }
 
     const total = pool.length
@@ -50,6 +79,8 @@ export const wordRoutes: FastifyPluginAsync = async (app) => {
 
     const pool = ALL.filter((r) => {
       if (freq === 'high' && r[3] !== 0) return false
+      if (freq === 'mid' && r[3] !== 1) return false
+      if (freq === 'low' && r[3] !== 2) return false
       if (level === 'cet4') return r[2].includes('CET4')
       if (level === 'cet6') return r[2].includes('CET6')
       return true

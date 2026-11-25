@@ -183,7 +183,7 @@ export const api = {
   },
 
   words: {
-    random(level: 'all' | 'cet4' | 'cet6', freq: 'all' | 'high', exclude?: string) {
+    random(level: 'all' | 'cet4' | 'cet6', freq: 'all' | 'high' | 'mid' | 'low', exclude?: string) {
       return request<{
         word: string
         meaning: string
@@ -192,7 +192,17 @@ export const api = {
         freqLabel: string
       }>(`/api/words/random${qs({ level, freq, exclude })}`)
     },
-    list(params: { q?: string; level?: string; freq?: string; page?: number; size?: number } = {}) {
+    list(
+      params: {
+        q?: string
+        level?: string
+        freq?: string
+        page?: number
+        size?: number
+        order?: string
+        seed?: number
+      } = {},
+    ) {
       return request<WordPage>(`/api/words${qs(params)}`)
     },
     stats() {
