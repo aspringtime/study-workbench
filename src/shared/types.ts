@@ -133,6 +133,25 @@ export interface ApiError {
   message: string
 }
 
+/* ---------- 词库 ---------- */
+
+export interface WordItem {
+  word: string
+  meaning: string
+  /** CET4 / CET6 / CET4/6 */
+  level: string
+  /** 0 高频 · 1 中频 · 2 低频 */
+  freq: number
+  freqLabel: string
+}
+
+export interface WordPage {
+  total: number
+  page: number
+  size: number
+  items: WordItem[]
+}
+
 /* ---------- 资料 ---------- */
 
 export interface Resource {

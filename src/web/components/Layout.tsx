@@ -15,6 +15,7 @@ import {
   IconMap,
   IconMoon,
   IconSun,
+  IconVocabulary,
 } from './icons'
 
 const TIMEZONE_OPTIONS = [
@@ -88,6 +89,7 @@ export function Layout() {
     { to: '/', label: '今日', icon: IconSun, badge: todayTodo || undefined },
     { to: '/tasks', label: '任务', icon: IconCheckSquare },
     { to: '/topics', label: '知识地图', icon: IconMap },
+    { to: '/words', label: '词汇', icon: IconVocabulary },
     { to: '/notes', label: '笔记', icon: IconFileText },
     { to: '/resources', label: '资料', icon: IconBook },
     { to: '/review', label: '复习', icon: IconLayers, badge: due || undefined, hot: due > 0 },

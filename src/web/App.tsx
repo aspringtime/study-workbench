@@ -6,6 +6,7 @@ import { ToastHost } from './lib/ui'
 import Today from './pages/Today'
 import Tasks from './pages/Tasks'
 import Topics from './pages/Topics'
+import Words from './pages/Words'
 import Notes from './pages/Notes'
 import Resources from './pages/Resources'
 import Review from './pages/Review'
@@ -43,6 +44,7 @@ export default function App() {
             <Route index element={<Today />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/topics" element={<Topics />} />
+            <Route path="/words" element={<Words />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/review" element={<Review />} />

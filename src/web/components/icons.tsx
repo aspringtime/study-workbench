@@ -146,3 +146,10 @@ export const IconGlobe = ({ size, ...p }: P) => (
     <path d="M12 3c2.5 2.5 3.6 5.6 3.6 9s-1.1 6.5-3.6 9c-2.5-2.5-3.6-5.6-3.6-9S9.5 5.5 12 3z" />
   </svg>
 )
+
+export const IconVocabulary = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}>
+    <path d="M2 4h6a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z" />
+    <path d="M22 4h-6a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z" />
+  </svg>
+)

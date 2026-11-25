@@ -10,6 +10,7 @@ import type {
   TemplateInfo,
   TodayPayload,
   Topic,
+  WordPage,
 } from '@shared/types'
 import { todayStr } from '@shared/dates'
 
@@ -190,6 +191,14 @@ export const api = {
         freq: number
         freqLabel: string
       }>(`/api/words/random${qs({ level, freq, exclude })}`)
+    },
+    list(params: { q?: string; level?: string; freq?: string; page?: number; size?: number } = {}) {
+      return request<WordPage>(`/api/words${qs(params)}`)
+    },
+    stats() {
+      return request<{ total: number; cet4: number; cet6: number; both: number; byFreq: number[] }>(
+        '/api/words/stats',
+      )
     },
   },
 

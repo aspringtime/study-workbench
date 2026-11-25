@@ -8,6 +8,43 @@ const ALL = words as unknown as Row[]
 const FREQ_LABEL = ['高频', '中频', '低频']
 
 export const wordRoutes: FastifyPluginAsync = async (app) => {
+  /** 词库浏览：分页 + 级别 / 频档筛选 + 关键词搜索 */
+  app.get('/api/words', async (req) => {
+    const { q = '', level = 'all', freq = 'all', page = '1', size = '60' } = req.query as Record<
+      string,
+      string
+    >
+    const pageNum = Math.max(1, Number(page) || 1)
+    const pageSize = Math.min(300, Math.max(10, Number(size) || 60))
+
+    let pool = ALL
+    if (level === 'cet4') pool = pool.filter((r) => r[2].includes('CET4'))
+    else if (level === 'cet6') pool = pool.filter((r) => r[2].includes('CET6'))
+
+    if (freq !== 'all') {
+      const want = freq === 'high' ? 0 : freq === 'mid' ? 1 : 2
+      pool = pool.filter((r) => r[3] === want)
+    }
+
+    const keyword = q.trim()
+    if (keyword) {
+      const lower = keyword.toLowerCase()
+      pool = pool.filter((r) => r[0].toLowerCase().includes(lower) || r[1].includes(keyword))
+    }
+
+    const total = pool.length
+    const start = (pageNum - 1) * pageSize
+    const items = pool.slice(start, start + pageSize).map((r) => ({
+      word: r[0],
+      meaning: r[1],
+      level: r[2],
+      freq: r[3],
+      freqLabel: FREQ_LABEL[r[3]] ?? '',
+    }))
+
+    return { total, page: pageNum, size: pageSize, items }
+  })
+
   app.get('/api/words/random', async (req) => {
     const { level = 'all', freq = 'all', exclude } = req.query as Record<string, string>
 
