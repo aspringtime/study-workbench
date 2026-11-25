@@ -9,7 +9,7 @@
 A small learning system I built for myself. It doesn't try to do everything — just four things:
 
 **What should I do today?** → Pomodoro timer and a task list
-**Where am I?** → a map of algorithms and concepts
+**Where am I?** → a knowledge map and a vocabulary library
 **What needs reviewing?** → spaced-repetition cards
 **Have I been showing up?** → a study heatmap
 
@@ -17,14 +17,17 @@ A small learning system I built for myself. It doesn't try to do everything — 
 
 ## Features
 
-- **Today** — Pomodoro timer (25 / 5 / 15, bindable to a task), today's tasks, today's numbers, a timeline of focus sessions
+- **Today** — Pomodoro timer (25 / 5 / 15, bindable to a task), today's tasks, today's numbers, a timeline of focus sessions, plus a random CET word of the day
 - **Tasks** — grouped into overdue / today / tomorrow / later / inbox / done
-- **Knowledge map** — a built-in outline of graph theory, data structures, DP and general techniques; click the status dot to cycle through todo → learning → mastered; each topic carries notes and a problem count
+- **Knowledge map** — three built-in outline templates (CS fundamentals / algorithms / English CET); click the status dot to cycle todo → learning → mastered; each topic carries notes and a problem count
+- **Vocabulary** — the full 6,661-word CET-4/6 library, tagged by COCA frequency (high / mid / low), with search, filters and a shuffled browse mode; includes a dictation drill (write the English from the Chinese meaning, first-letter hints, accuracy stats, progress saved)
 - **Notes** — Markdown editing with preview, auto-saved as you type, tagged as template / pitfall / idea
+- **Resources** — a categorised list of lecture notes and docs worth keeping around
 - **Review** — simplified SM-2 spaced repetition; space to flip, 1–4 to rate; card library included
 - **Stats** — a full-year heatmap (one cell per day), last 30 days of focus time, current and longest streaks
 
 ![Knowledge map](docs/topics.png)
+![Vocabulary](docs/vocabulary.png)
 ![Stats](docs/stats.png)
 
 ## Stack
@@ -138,25 +141,33 @@ Everything lives under `/api`, JSON in and out. The ones worth knowing:
 | --- | --- | --- |
 | GET | `/api/today?date=YYYY-MM-DD` | everything the home screen needs |
 | GET | `/api/stats/activity?from=&to=` | per-day activity, feeds the heatmap |
+| GET | `/api/words?q=&level=&freq=&page=` | paged word library, supports shuffled order |
+| GET | `/api/words/random?level=&freq=` | one random word (word of the day and dictation) |
+| GET | `/api/templates` | knowledge-map templates |
 | GET / POST | `/api/export` · `/api/import` | full backup and restore |
 | POST | `/api/cards/:id/review` | submit one review rating |
 
 ## Design decisions
 
 - **No authentication.** This is a single-person tool running on your machine or your own server. For public access, put it behind a reverse proxy with auth.
-- **Dates are local `YYYY-MM-DD` strings**, sent by the client. The server does no timezone inference, so nothing shifts across timezones or DST.
+- **Dates are local `YYYY-MM-DD` strings**, sent by the client. The server does no timezone inference. "Today" follows the device timezone by default, and you can pin it to another zone from the sidebar.
 - **A Pomodoro session is recorded as one block.** Pausing and resuming doesn't split it; the whole duration lands as a single record.
 - **Spaced repetition is a simplified SM-2**: forgot resets to today, hard ×1.2, good × ease, easy ×1.3 with ease +0.15.
+- **Some state stays in the browser**: the timer, the current dictation question, and the last visited page all live in localStorage, not in the database.
 
 ## Layout
 
 ```
 src/
-  shared/        shared by both sides: types, date helpers, SM-2, seed outline
+  shared/        shared by both sides: types, dates, SM-2, topic templates, CET word list
   server/        Fastify app, routes, SQLite
   web/           React pages and components
+scripts/         one-off scripts: build word list, seed demo data, reset stats
+desktop/         Electron shell for the Windows build
 data/            SQLite created at runtime (gitignored)
 ```
+
+The word list comes from [KyleBing/english-vocabulary](https://github.com/KyleBing/english-vocabulary) (BSD 3-Clause), with frequency tiers derived from the COCA 20k list. Details and the regeneration command are in `src/shared/words/README.md`.
 
 ## License
 
