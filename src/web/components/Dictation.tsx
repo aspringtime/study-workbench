@@ -68,6 +68,8 @@ export function Dictation({ level, freq }: { level: Level; freq: Freq }) {
     if (ok) {
       timer.current = window.setTimeout(() => void load(), 550)
     } else {
+      // 错的词从输入框里清掉，照着上面给的答案重写一遍
+      setInput('')
       window.setTimeout(() => inputRef.current?.focus(), 30)
     }
   }
