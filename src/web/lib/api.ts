@@ -182,10 +182,14 @@ export const api = {
   },
 
   words: {
-    random(level: 'cet4' | 'cet6', exclude?: string) {
-      return request<{ word: string; meaning: string; level: string }>(
-        `/api/words/random${qs({ level, exclude })}`,
-      )
+    random(level: 'all' | 'cet4' | 'cet6', freq: 'all' | 'high', exclude?: string) {
+      return request<{
+        word: string
+        meaning: string
+        level: string
+        freq: number
+        freqLabel: string
+      }>(`/api/words/random${qs({ level, freq, exclude })}`)
     },
   },
 
