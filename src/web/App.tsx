@@ -1,4 +1,5 @@
-import { Route, Routes, Link } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { Route, Routes, Link, useLocation, useNavigate } from 'react-router-dom'
 import { SWRConfig } from 'swr'
 import { Layout } from './components/Layout'
 import { TimerProvider } from './lib/timer'
@@ -11,6 +12,35 @@ import Notes from './pages/Notes'
 import Resources from './pages/Resources'
 import Review from './pages/Review'
 import Stats from './pages/Stats'
+
+const LAST_ROUTE_KEY = 'wb-last-route'
+
+/**
+ * 记住上次待在哪一页。
+ * 打开应用时如果落在首页，且上次停的是别的页面，就跳回去；
+ * 之后每次切页都把当前路径记下来。
+ */
+function RouteMemory() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const restored = useRef(false)
+
+  useEffect(() => {
+    if (!restored.current) {
+      restored.current = true
+      if (location.pathname === '/') {
+        const last = localStorage.getItem(LAST_ROUTE_KEY)
+        if (last && last !== '/' && last.startsWith('/') && !last.startsWith('//')) {
+          navigate(last, { replace: true })
+          return
+        }
+      }
+    }
+    localStorage.setItem(LAST_ROUTE_KEY, location.pathname)
+  }, [location.pathname, navigate])
+
+  return null
+}
 
 function NotFound() {
   return (
@@ -39,6 +69,7 @@ export default function App() {
       }}
     >
       <TimerProvider>
+        <RouteMemory />
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Today />} />
