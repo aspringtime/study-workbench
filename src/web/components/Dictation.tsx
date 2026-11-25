@@ -20,6 +20,7 @@ export function Dictation({ level, freq }: { level: Level; freq: Freq }) {
   const [input, setInput] = useState('')
   const [result, setResult] = useState<'ok' | 'wrong' | null>(null)
   const [loading, setLoading] = useState(false)
+  const [hint, setHint] = useState(false)
   const [stats, setStats] = useState({ correct: 0, total: 0, streak: 0, best: 0 })
   const inputRef = useRef<HTMLInputElement>(null)
   const timer = useRef<number | null>(null)
@@ -28,6 +29,7 @@ export function Dictation({ level, freq }: { level: Level; freq: Freq }) {
     setLoading(true)
     setInput('')
     setResult(null)
+    setHint(false)
     try {
       const next = await api.words.random(level, freq)
       setEntry(next)
@@ -103,10 +105,22 @@ export function Dictation({ level, freq }: { level: Level; freq: Freq }) {
         </div>
       </div>
 
+      <div style={{ minHeight: 34, marginTop: 10 }}>
+        {hint && entry && result !== 'wrong' && (
+          <div className="mono" style={{ color: 'var(--warn)', fontSize: 14, letterSpacing: '0.16em' }}>
+            {entry.word[0]}
+            {' _'.repeat(Math.max(0, entry.word.length - 1))}
+            <span className="tiny muted" style={{ letterSpacing: 0, marginLeft: 10 }}>
+              {entry.word.length} 个字母
+            </span>
+          </div>
+        )}
+      </div>
+
       <input
         ref={inputRef}
         className="input"
-        style={{ marginTop: 10, fontSize: 16, letterSpacing: '0.02em' }}
+        style={{ marginTop: 6, fontSize: 16, letterSpacing: '0.02em' }}
         placeholder="写出英文单词，回车检查"
         value={input}
         disabled={loading || result === 'ok'}
@@ -144,6 +158,11 @@ export function Dictation({ level, freq }: { level: Level; freq: Freq }) {
         ) : (
           <button className="btn primary" onClick={check} disabled={!input.trim() || loading}>
             检查
+          </button>
+        )}
+        {!result && (
+          <button className="btn ghost" onClick={() => setHint((v) => !v)}>
+            {hint ? '收起提示' : '提示'}
           </button>
         )}
         <button className="btn ghost" onClick={() => void load()}>
