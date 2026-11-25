@@ -23,15 +23,27 @@ const PAGE_SIZE = 60
 type Mode = 'browse' | 'dictation'
 
 export default function Words() {
-  const [mode, setMode] = useState<Mode>('browse')
+  const [mode, setMode] = useState<Mode>(() =>
+    localStorage.getItem('wb-words-mode') === 'dictation' ? 'dictation' : 'browse',
+  )
   const [q, setQ] = useState('')
   const search = useDebounced(q, 320)
-  const [level, setLevel] = useState('all')
-  const [freq, setFreq] = useState('all')
+  const [level, setLevel] = useState(() => localStorage.getItem('wb-words-level') ?? 'all')
+  const [freq, setFreq] = useState(() => localStorage.getItem('wb-words-freq') ?? 'all')
   const [page, setPage] = useState(1)
   const [busy, setBusy] = useState<string | null>(null)
   const [shuffle, setShuffle] = useState(false)
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9))
+
+  useEffect(() => {
+    localStorage.setItem('wb-words-mode', mode)
+  }, [mode])
+  useEffect(() => {
+    localStorage.setItem('wb-words-level', level)
+  }, [level])
+  useEffect(() => {
+    localStorage.setItem('wb-words-freq', freq)
+  }, [freq])
 
   useEffect(() => {
     setPage(1)

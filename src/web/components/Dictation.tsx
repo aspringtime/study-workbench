@@ -14,6 +14,35 @@ interface Entry {
   freqLabel: string
 }
 
+interface Stats {
+  correct: number
+  total: number
+  streak: number
+  best: number
+}
+
+interface Save {
+  level: Level
+  freq: Freq
+  entry: Entry
+  stats: Stats
+}
+
+const SAVE_KEY = 'wb-dictation-v1'
+const EMPTY_STATS: Stats = { correct: 0, total: 0, streak: 0, best: 0 }
+
+function readSave(): Save | null {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY)
+    if (!raw) return null
+    const s = JSON.parse(raw) as Save
+    if (!s?.entry?.word || !s?.stats) return null
+    return s
+  } catch {
+    return null
+  }
+}
+
 /** 看中文写英文，答对自动进下一题，答错停住让你看答案 */
 export function Dictation({ level, freq }: { level: Level; freq: Freq }) {
   const [entry, setEntry] = useState<Entry | null>(null)
@@ -21,9 +50,10 @@ export function Dictation({ level, freq }: { level: Level; freq: Freq }) {
   const [result, setResult] = useState<'ok' | 'wrong' | null>(null)
   const [loading, setLoading] = useState(false)
   const [hint, setHint] = useState(false)
-  const [stats, setStats] = useState({ correct: 0, total: 0, streak: 0, best: 0 })
+  const [stats, setStats] = useState<Stats>(EMPTY_STATS)
   const inputRef = useRef<HTMLInputElement>(null)
   const timer = useRef<number | null>(null)
+  const booted = useRef(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -41,10 +71,31 @@ export function Dictation({ level, freq }: { level: Level; freq: Freq }) {
     }
   }, [level, freq])
 
+  // 首次进入先看有没有上次的存档；筛选条件变了就从头开始
   useEffect(() => {
-    setStats({ correct: 0, total: 0, streak: 0, best: 0 })
+    if (!booted.current) {
+      booted.current = true
+      const saved = readSave()
+      if (saved && saved.level === level && saved.freq === freq) {
+        setEntry(saved.entry)
+        setStats(saved.stats)
+        window.setTimeout(() => inputRef.current?.focus(), 30)
+        return
+      }
+    }
+    setStats(EMPTY_STATS)
     void load()
   }, [level, freq, load])
+
+  // 题目或成绩变了就存一份，关掉再打开能接着来
+  useEffect(() => {
+    if (!entry) return
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({ level, freq, entry, stats }))
+    } catch {
+      /* 存不下就算了 */
+    }
+  }, [entry, stats, level, freq])
 
   useEffect(() => {
     return () => {
